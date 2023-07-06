@@ -1,4 +1,4 @@
-package com.isayevapps.crimes
+package com.isayevapps.crimes.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.isayevapps.crimes.adapters.CrimeListAdapter
+import com.isayevapps.crimes.R
 
 class CrimeListFragment : Fragment() {
 

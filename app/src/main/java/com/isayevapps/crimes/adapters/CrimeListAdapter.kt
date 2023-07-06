@@ -1,10 +1,13 @@
-package com.isayevapps.crimes
+package com.isayevapps.crimes.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.isayevapps.crimes.R
+import com.isayevapps.crimes.models.Crime
 
 class CrimeListAdapter(
     private val crimes: List<Crime>
@@ -13,10 +16,12 @@ class CrimeListAdapter(
     inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleTextView = itemView.findViewById<TextView>(R.id.crime_title)
         private val dateTextView = itemView.findViewById<TextView>(R.id.crime_date)
+        private val solvedImageView = itemView.findViewById<ImageView>(R.id.solvedImageView)
 
         fun bind(crime: Crime) {
             titleTextView.text = crime.title
             dateTextView.text = crime.date.toString()
+            solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
         }
     }
 

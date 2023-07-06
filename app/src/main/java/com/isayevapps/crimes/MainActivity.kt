@@ -2,6 +2,7 @@ package com.isayevapps.crimes
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.isayevapps.crimes.ui.home.CrimeListFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

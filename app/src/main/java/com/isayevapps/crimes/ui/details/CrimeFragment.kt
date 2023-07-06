@@ -1,4 +1,4 @@
-package com.isayevapps.crimes
+package com.isayevapps.crimes.ui.details
 
 import android.os.Bundle
 import android.text.Editable
@@ -10,6 +10,8 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import com.isayevapps.crimes.R
+import com.isayevapps.crimes.models.Crime
 
 class CrimeFragment : Fragment() {
 

@@ -1,4 +1,4 @@
-package com.isayevapps.crimes
+package com.isayevapps.crimes.models
 
 import java.util.Date
 

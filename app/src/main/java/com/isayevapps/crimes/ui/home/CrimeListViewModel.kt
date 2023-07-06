@@ -1,6 +1,7 @@
-package com.isayevapps.crimes
+package com.isayevapps.crimes.ui.home
 
 import androidx.lifecycle.ViewModel
+import com.isayevapps.crimes.models.Crime
 
 class CrimeListViewModel : ViewModel() {
 
