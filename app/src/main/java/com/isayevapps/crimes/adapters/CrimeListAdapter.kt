@@ -10,15 +10,26 @@ import com.isayevapps.crimes.R
 import com.isayevapps.crimes.models.Crime
 
 class CrimeListAdapter(
-    private val crimes: List<Crime>
+    private val crimes: List<Crime>,
+    private val clicker: OnCrimeClicked
 ) : RecyclerView.Adapter<CrimeListAdapter.CrimeHolder>() {
 
     inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        private lateinit var crime: Crime
+
         private val titleTextView = itemView.findViewById<TextView>(R.id.crime_title)
         private val dateTextView = itemView.findViewById<TextView>(R.id.crime_date)
         private val solvedImageView = itemView.findViewById<ImageView>(R.id.solvedImageView)
 
+        init {
+            itemView.setOnClickListener {
+                clicker.onCrimeClick(crime.id)
+            }
+        }
+
         fun bind(crime: Crime) {
+            this.crime = crime
             titleTextView.text = crime.title
             dateTextView.text = crime.date.toString()
             solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE

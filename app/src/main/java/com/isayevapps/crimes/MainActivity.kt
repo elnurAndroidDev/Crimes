@@ -2,9 +2,11 @@ package com.isayevapps.crimes
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.isayevapps.crimes.adapters.OnCrimeClicked
+import com.isayevapps.crimes.ui.details.CrimeFragment
 import com.isayevapps.crimes.ui.home.CrimeListFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnCrimeClicked {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -18,5 +20,14 @@ class MainActivity : AppCompatActivity() {
                 .add(R.id.fragment_container, fragment)
                 .commit()
         }
+    }
+
+    override fun onCrimeClick(id: Int) {
+        val fragment = CrimeFragment.newInstance(id)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
