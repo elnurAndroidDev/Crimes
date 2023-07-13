@@ -3,49 +3,41 @@ package com.isayevapps.crimes.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.isayevapps.crimes.R
+import com.isayevapps.crimes.databinding.ListItemCrimeBinding
 import com.isayevapps.crimes.models.Crime
 
 class CrimeListAdapter(
     private val crimes: List<Crime>,
-    private val clicker: OnCrimeClicked
+    private val onCrimeClicked: (crimeID: Int) -> Unit
 ) : RecyclerView.Adapter<CrimeListAdapter.CrimeHolder>() {
 
-    inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view) {
-
+    inner class CrimeHolder(private val binding: ListItemCrimeBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         private lateinit var crime: Crime
 
-        private val titleTextView = itemView.findViewById<TextView>(R.id.crime_title)
-        private val dateTextView = itemView.findViewById<TextView>(R.id.crime_date)
-        private val solvedImageView = itemView.findViewById<ImageView>(R.id.solvedImageView)
-
-        init {
-            itemView.setOnClickListener {
-                clicker.onCrimeClick(crime.id)
-            }
-        }
-
-        fun bind(crime: Crime) {
+        fun bind(crime: Crime, onCrimeClicked: (crimeID: Int) -> Unit) {
             this.crime = crime
-            titleTextView.text = crime.title
-            dateTextView.text = crime.date.toString()
-            solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+            binding.crimeTitle.text = crime.title
+            binding.crimeDate.text = crime.date.toString()
+            binding.solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+            binding.root.setOnClickListener {
+                onCrimeClicked(crime.id)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.list_item_crime, parent, false)
-        return CrimeHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = ListItemCrimeBinding.inflate(inflater, parent, false)
+        return CrimeHolder(binding)
     }
 
     override fun getItemCount() = crimes.size
 
     override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
         val crime = crimes[position]
-        holder.bind(crime)
+        holder.bind(crime, onCrimeClicked)
     }
 }

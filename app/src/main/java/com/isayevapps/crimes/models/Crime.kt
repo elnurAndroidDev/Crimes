@@ -8,7 +8,7 @@ import java.util.Date
 data class Crime(
     @PrimaryKey
     val id: Int = 0,
-    var title: String = "",
-    var date: Date = Date(),
-    var isSolved: Boolean = false
+    val title: String = "",
+    val date: Date = Date(),
+    val isSolved: Boolean = false
 )

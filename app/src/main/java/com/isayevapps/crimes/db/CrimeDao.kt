@@ -1,20 +1,20 @@
 package com.isayevapps.crimes.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.isayevapps.crimes.models.Crime
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface CrimeDao {
     @Query("SELECT * FROM crime")
-    fun getCrimes(): LiveData<List<Crime>>
+    fun getCrimes(): Flow<List<Crime>>
 
     @Query("SELECT * FROM crime WHERE id=(:id)")
-    fun getCrime(id: Int): LiveData<Crime?>
+    suspend fun getCrime(id: Int): Flow<Crime?>
 
     @Update
     fun updateCrime(crime: Crime)
