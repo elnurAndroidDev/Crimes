@@ -22,5 +22,16 @@
         <argument
             android:name="crimeID"
             app:argType="integer" />
+        <action
+            android:id="@+id/select_date"
+            app:destination="@id/dateDialogFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/dateDialogFragment"
+        android:name="com.isayevapps.crimes.ui.dialogs.DateDialogFragment"
+        android:label="DateDialogFragment" >
+        <argument
+            android:name="crimeDate"
+            app:argType="java.util.Date" />
+    </dialog>
 </navigation>

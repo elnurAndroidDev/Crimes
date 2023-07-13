@@ -14,11 +14,11 @@ interface CrimeDao {
     fun getCrimes(): Flow<List<Crime>>
 
     @Query("SELECT * FROM crime WHERE id=(:id)")
-    suspend fun getCrime(id: Int): Flow<Crime?>
+    suspend fun getCrime(id: Int): Crime
 
     @Update
-    fun updateCrime(crime: Crime)
+    suspend fun updateCrime(crime: Crime)
 
     @Insert
-    fun addCrime(crime: Crime)
+    suspend fun addCrime(crime: Crime)
 }

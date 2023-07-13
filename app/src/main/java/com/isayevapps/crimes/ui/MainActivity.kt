@@ -1,10 +1,10 @@
-package com.isayevapps.crimes
+package com.isayevapps.crimes.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.isayevapps.crimes.R
 import com.isayevapps.crimes.adapters.OnCrimeClicked
 import com.isayevapps.crimes.ui.details.CrimeFragment
-import com.isayevapps.crimes.ui.home.CrimeListFragment
 
 class MainActivity : AppCompatActivity(), OnCrimeClicked {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,21 +1,29 @@
 package com.isayevapps.crimes.ui.details
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.isayevapps.crimes.databinding.FragmentCrimeBinding
 import com.isayevapps.crimes.models.Crime
+import com.isayevapps.crimes.ui.dialogs.DateDialogFragment
+import kotlinx.coroutines.launch
+import java.io.Serializable
+import java.util.Date
 
 private const val ARG_CRIME_ID = "crime_id"
 
 class CrimeFragment : Fragment() {
-
-    private lateinit var crime: Crime
     private var _binding: FragmentCrimeBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
@@ -24,15 +32,8 @@ class CrimeFragment : Fragment() {
 
     private val args: CrimeFragmentArgs by navArgs()
 
-    private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
-        ViewModelProvider(requireActivity())[CrimeDetailViewModel::class.java]
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        /*val crimeId = arguments?.getInt(ARG_CRIME_ID)
-        crimeDetailViewModel.loadCrime(crimeId!!)*/
-        crime = Crime(title = "Murder")
+    private val crimeDetailViewModel: CrimeDetailViewModel by viewModels {
+        CrimeDetailViewModelFactory(args.crimeID)
     }
 
     override fun onCreateView(
@@ -45,33 +46,54 @@ class CrimeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateUI()
         binding.apply {
             crimeTitle.doOnTextChanged { text, _, _, _ ->
-                crime = crime.copy(title = text.toString())
-            }
-
-            crimeDate.apply {
-                text = crime.date.toString()
-                isEnabled = false
+                crimeDetailViewModel.updateCrime { oldCrime ->
+                    oldCrime.copy(title = text.toString())
+                }
             }
 
             crimeSolved.setOnCheckedChangeListener { _, isChecked ->
-                crime = crime.copy(isSolved = isChecked)
+                crimeDetailViewModel.updateCrime { oldCrime ->
+                    oldCrime.copy(isSolved = isChecked)
+                }
             }
         }
-        crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner) { crime ->
-            crime?.let {
-                this.crime = crime
-                updateUI()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                crimeDetailViewModel.crime.collect { crime ->
+                    crime?.let { updateUI(it) }
+                }
+            }
+        }
+
+        setFragmentResultListener(DateDialogFragment.REQUEST_KEY_DATE) { _, bundle ->
+            val newDate = bundle.customGetSerializable<Date>(DateDialogFragment.BUNDLE_KEY_DATE)
+            newDate?.let {
+                crimeDetailViewModel.updateCrime { it.copy(date = newDate) }
             }
         }
     }
 
-    private fun updateUI() {
-        binding.crimeTitle.setText(crime.title)
-        binding.crimeDate.text = crime.date.toString()
-        binding.crimeSolved.isChecked = crime.isSolved
+    @Suppress("DEPRECATION")
+    private inline fun <reified T : Serializable> Bundle.customGetSerializable(key: String): T? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getSerializable(key, T::class.java)
+        } else {
+            getSerializable(key) as? T
+        }
+    }
+
+    private fun updateUI(crime: Crime) {
+        binding.apply {
+            crimeTitle.setText(crime.title)
+            crimeDate.text = crime.date.toString()
+            crimeDate.setOnClickListener {
+                findNavController().navigate(CrimeFragmentDirections.selectDate(crime.date))
+            }
+            crimeSolved.isChecked = crime.isSolved
+        }
     }
 
     override fun onDestroyView() {
