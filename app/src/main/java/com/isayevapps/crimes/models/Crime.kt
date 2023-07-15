@@ -8,8 +8,9 @@ import java.util.UUID
 @Entity
 data class Crime(
     @PrimaryKey
-    var id: UUID = UUID.randomUUID(),
-    var title: String = "",
-    var date: Date = Date(),
-    var solved: Boolean = false
+    val id: UUID = UUID.randomUUID(),
+    val title: String = "",
+    val date: Date = Date(),
+    val solved: Boolean = false,
+    val suspect: String = ""
 )
