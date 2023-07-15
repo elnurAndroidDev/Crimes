@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class CrimeRepository private constructor(
     context: Context,
@@ -22,11 +23,15 @@ class CrimeRepository private constructor(
     private val crimeDao = database.crimeDao()
 
     fun getCrimes(): Flow<List<Crime>> = crimeDao.getCrimes()
-    suspend fun getCrime(id: Int): Crime = crimeDao.getCrime(id)
+    suspend fun getCrime(id: UUID): Crime = crimeDao.getCrime(id)
 
     fun updateCrime(crime: Crime) = coroutineScope.launch {
         crimeDao.updateCrime(crime)
     }
+
+    suspend fun addCrime(crime: Crime) = crimeDao.addCrime(crime)
+
+    suspend fun deleteCrime(crime: Crime) = crimeDao.deleteCrime(crime)
 
 
     companion object {

@@ -3,8 +3,12 @@ package com.isayevapps.crimes.ui.details
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -14,14 +18,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.isayevapps.crimes.R
 import com.isayevapps.crimes.databinding.FragmentCrimeBinding
 import com.isayevapps.crimes.models.Crime
 import com.isayevapps.crimes.ui.dialogs.DateDialogFragment
 import kotlinx.coroutines.launch
 import java.io.Serializable
 import java.util.Date
-
-private const val ARG_CRIME_ID = "crime_id"
 
 class CrimeFragment : Fragment() {
     private var _binding: FragmentCrimeBinding? = null
@@ -46,6 +49,7 @@ class CrimeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupMenu()
         binding.apply {
             crimeTitle.doOnTextChanged { text, _, _, _ ->
                 crimeDetailViewModel.updateCrime { oldCrime ->
@@ -55,7 +59,7 @@ class CrimeFragment : Fragment() {
 
             crimeSolved.setOnCheckedChangeListener { _, isChecked ->
                 crimeDetailViewModel.updateCrime { oldCrime ->
-                    oldCrime.copy(isSolved = isChecked)
+                    oldCrime.copy(solved = isChecked)
                 }
             }
         }
@@ -85,14 +89,36 @@ class CrimeFragment : Fragment() {
         }
     }
 
+    private fun setupMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_crime_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.delete_crime -> {
+                        crimeDetailViewModel.deleteCrime()
+                        findNavController().popBackStack()
+                        true
+                    }
+
+                    else -> true
+                }
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
     private fun updateUI(crime: Crime) {
         binding.apply {
             crimeTitle.setText(crime.title)
+            crimeTitle.setSelection(crimeTitle.text.length)
             crimeDate.text = crime.date.toString()
             crimeDate.setOnClickListener {
                 findNavController().navigate(CrimeFragmentDirections.selectDate(crime.date))
             }
-            crimeSolved.isChecked = crime.isSolved
+            crimeSolved.isChecked = crime.solved
         }
     }
 
@@ -100,16 +126,4 @@ class CrimeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-    companion object {
-        fun newInstance(crimeId: Int): CrimeFragment {
-            val args = Bundle().apply {
-                putSerializable(ARG_CRIME_ID, crimeId)
-            }
-            return CrimeFragment().apply {
-                arguments = args
-            }
-        }
-    }
-
 }

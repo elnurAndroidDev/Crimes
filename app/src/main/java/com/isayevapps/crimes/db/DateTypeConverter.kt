@@ -2,8 +2,9 @@ package com.isayevapps.crimes.db
 
 import androidx.room.TypeConverter
 import java.util.Date
+import java.util.UUID
 
-class CrimeTypeConverter {
+class DateTypeConverter {
 
     @TypeConverter
     fun fromDate(date: Date?): Long? {
