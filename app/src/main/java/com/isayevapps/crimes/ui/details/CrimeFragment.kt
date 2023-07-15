@@ -1,8 +1,10 @@
 package com.isayevapps.crimes.ui.details
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.Menu
@@ -10,6 +12,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -42,6 +45,12 @@ class CrimeFragment : Fragment() {
         CrimeDetailViewModelFactory(args.crimeID)
     }
 
+    private val selectSuspect = registerForActivityResult(
+        ActivityResultContracts.PickContact()
+    ) { uri: Uri? ->
+        uri?.let { parseContactSelection(it) }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,6 +73,9 @@ class CrimeFragment : Fragment() {
                 crimeDetailViewModel.updateCrime { oldCrime ->
                     oldCrime.copy(solved = isChecked)
                 }
+            }
+            chooseSuspectBtn.setOnClickListener {
+                selectSuspect.launch(null)
             }
         }
 
@@ -123,6 +135,10 @@ class CrimeFragment : Fragment() {
             }
             crimeSolved.isChecked = crime.solved
 
+            chooseSuspectBtn.text = crime.suspect.ifEmpty {
+                getString(R.string.choose_suspect_txt)
+            }
+
             sendReportBtn.setOnClickListener {
                 val reportIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
@@ -156,6 +172,22 @@ class CrimeFragment : Fragment() {
             R.string.crime_report,
             crime.title, dateString, solvedString, suspectText
         )
+    }
+
+    private fun parseContactSelection(contactUri: Uri) {
+        val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+
+        val queryCursor = requireActivity().contentResolver
+            .query(contactUri, queryFields, null, null, null)
+
+        queryCursor?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val suspect = cursor.getString(0)
+                crimeDetailViewModel.updateCrime { oldCrime ->
+                    oldCrime.copy(suspect = suspect)
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
