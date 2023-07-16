@@ -1,6 +1,8 @@
 package com.isayevapps.crimes.ui.details
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,7 +15,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
+import androidx.core.view.doOnLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -27,7 +31,9 @@ import com.isayevapps.crimes.R
 import com.isayevapps.crimes.databinding.FragmentCrimeBinding
 import com.isayevapps.crimes.models.Crime
 import com.isayevapps.crimes.ui.dialogs.DateDialogFragment
+import com.isayevapps.crimes.utils.PictureUtils
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.Serializable
 import java.util.Date
 
@@ -50,6 +56,18 @@ class CrimeFragment : Fragment() {
     ) { uri: Uri? ->
         uri?.let { parseContactSelection(it) }
     }
+
+    private var photoName: String? = null
+    private val takePhoto = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { didTakePhoto: Boolean ->
+        if (didTakePhoto && photoName != null) {
+            crimeDetailViewModel.updateCrime { oldCrime ->
+                oldCrime.copy(photoFileName = photoName)
+            }
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,8 +92,27 @@ class CrimeFragment : Fragment() {
                     oldCrime.copy(solved = isChecked)
                 }
             }
+            val selectSuspectIntent = selectSuspect.contract.createIntent(
+                requireContext(),
+                null
+            )
+            chooseSuspectBtn.isEnabled = canResolveIntent(selectSuspectIntent)
             chooseSuspectBtn.setOnClickListener {
                 selectSuspect.launch(null)
+            }
+
+            val captureImageIntent = takePhoto.contract.createIntent(
+                requireContext(),
+                Uri.parse("")
+            )
+            crimeCamera.isEnabled = canResolveIntent(captureImageIntent)
+
+            crimeCamera.setOnClickListener {
+                photoName = "IMG_${Date()}.JPG"
+                val photoFile = File(requireContext().applicationContext.filesDir, photoName!!)
+                val photoUri =
+                    FileProvider.getUriForFile(requireContext(), "com.isayevapps.crimes", photoFile)
+                takePhoto.launch(photoUri)
             }
         }
 
@@ -127,13 +164,15 @@ class CrimeFragment : Fragment() {
 
     private fun updateUI(crime: Crime) {
         binding.apply {
-            crimeTitle.setText(crime.title)
-            crimeTitle.setSelection(crimeTitle.text.length)
+            if (crimeTitle.text.toString() != crime.title)
+                crimeTitle.setText(crime.title)
             crimeDate.text = crime.date.toString()
             crimeDate.setOnClickListener {
                 findNavController().navigate(CrimeFragmentDirections.selectDate(crime.date))
             }
             crimeSolved.isChecked = crime.solved
+
+            updatePhoto(crime.photoFileName)
 
             chooseSuspectBtn.text = crime.suspect.ifEmpty {
                 getString(R.string.choose_suspect_txt)
@@ -148,11 +187,36 @@ class CrimeFragment : Fragment() {
                         getString(R.string.crime_report_subject)
                     )
                 }
-                val chooserIntent = Intent.createChooser(reportIntent, getString(R.string.send_report))
+                val chooserIntent =
+                    Intent.createChooser(reportIntent, getString(R.string.send_report))
                 startActivity(chooserIntent)
             }
         }
     }
+
+    private fun updatePhoto(photoFileName: String?) {
+        if (binding.crimePhoto.tag != photoFileName) {
+            val photoFile = photoFileName?.let {
+                File(requireContext().applicationContext.filesDir, it)
+            }
+
+            if (photoFile?.exists() == true) {
+                binding.crimePhoto.doOnLayout { measuredView ->
+                    val scaledBitmap = PictureUtils.getScaledBitmap(
+                        photoFile.path,
+                        measuredView.width,
+                        measuredView.height
+                    )
+                    binding.crimePhoto.setImageBitmap(scaledBitmap)
+                    binding.crimePhoto.tag = photoFileName
+                }
+            } else {
+                binding.crimePhoto.setImageBitmap(null)
+                binding.crimePhoto.tag = null
+            }
+        }
+    }
+
 
     private fun getCrimeReport(crime: Crime): String {
         val solvedString = if (crime.solved) {
@@ -188,6 +252,16 @@ class CrimeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun canResolveIntent(intent: Intent): Boolean {
+        val packageManager: PackageManager = requireActivity().packageManager
+        val resolvedActivity: ResolveInfo? =
+            packageManager.resolveActivity(
+                intent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+        return resolvedActivity != null
     }
 
     override fun onDestroyView() {
