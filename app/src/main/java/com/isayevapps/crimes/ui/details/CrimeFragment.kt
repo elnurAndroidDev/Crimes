@@ -14,6 +14,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
@@ -130,7 +132,26 @@ class CrimeFragment : Fragment() {
                 crimeDetailViewModel.updateCrime { it.copy(date = newDate) }
             }
         }
+
+        activity?.onBackPressedDispatcher?.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (binding.crimeTitle.text.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.enter_title),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        binding.crimeTitle.requestFocus()
+                    } else {
+                        isEnabled = false
+                        activity?.onBackPressed()
+                    }
+                }
+            })
     }
+
 
     @Suppress("DEPRECATION")
     private inline fun <reified T : Serializable> Bundle.customGetSerializable(key: String): T? {

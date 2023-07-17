@@ -9,6 +9,7 @@
     <string name="delete_crime">Удалить преступление</string>
     <string name="choose_suspect_txt">Выбрать подозреваемого</string>
     <string name="send_report_txt">Отправить отчёт</string>
+    <string name="enter_title">Введите название</string>
 
     <string name="crime_report">%1$s!
       Дата обнаружения преступления: %2$s. %3$s, и %4$s
