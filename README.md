@@ -1,1 +1,1 @@
-I made this project by reading Android for professionals 5th edition
+I created this project based on the book 5th edition Android for professionals
