@@ -61,13 +61,13 @@
         android:id="@+id/crime_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="Wed Nov 14 11:56 EST 2018" />
+        tools:text="18.07.2023" />
 
-    <CheckBox
-        android:id="@+id/crime_solved"
+    <Button
+        android:id="@+id/crime_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/crime_solved_label" />
+        tools:text="11:56" />
 
     <Button
         android:id="@+id/choose_suspect_btn"
@@ -82,4 +82,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/send_report_txt" />
+
+    <CheckBox
+        android:id="@+id/crime_solved"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/crime_solved_label" />
 </LinearLayout>

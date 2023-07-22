@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.isayevapps.crimes.databinding.ListItemCrimeBinding
 import com.isayevapps.crimes.models.Crime
+import com.isayevapps.crimes.utils.DateUtils
 import java.util.UUID
 
 class CrimeListAdapter(
@@ -20,7 +21,7 @@ class CrimeListAdapter(
         fun bind(crime: Crime, onCrimeClicked: (crimeID: UUID) -> Unit) {
             this.crime = crime
             binding.crimeTitle.text = crime.title
-            binding.crimeDate.text = crime.date.toString()
+            binding.crimeDate.text = DateUtils.getDateAndTimeString(crime.date)
             binding.solvedImageView.visibility = if (crime.solved) View.VISIBLE else View.GONE
             binding.root.setOnClickListener {
                 onCrimeClicked(crime.id)

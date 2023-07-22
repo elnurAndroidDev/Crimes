@@ -33,6 +33,8 @@ import com.isayevapps.crimes.R
 import com.isayevapps.crimes.databinding.FragmentCrimeBinding
 import com.isayevapps.crimes.models.Crime
 import com.isayevapps.crimes.ui.dialogs.DateDialogFragment
+import com.isayevapps.crimes.ui.dialogs.TimePickerFragment
+import com.isayevapps.crimes.utils.DateUtils
 import com.isayevapps.crimes.utils.PictureUtils
 import kotlinx.coroutines.launch
 import java.io.File
@@ -133,6 +135,13 @@ class CrimeFragment : Fragment() {
             }
         }
 
+        setFragmentResultListener(TimePickerFragment.REQUEST_KEY_DATE) { _, bundle ->
+            val newDate = bundle.customGetSerializable<Date>(TimePickerFragment.BUNDLE_KEY_DATE)
+            newDate?.let {
+                crimeDetailViewModel.updateCrime { it.copy(date = newDate) }
+            }
+        }
+
         activity?.onBackPressedDispatcher?.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -198,9 +207,13 @@ class CrimeFragment : Fragment() {
         binding.apply {
             if (crimeTitle.text.toString() != crime.title)
                 crimeTitle.setText(crime.title)
-            crimeDate.text = crime.date.toString()
+            crimeDate.text = DateUtils.getDateString(crime.date)
+            crimeTime.text = DateUtils.getTimeString(crime.date)
             crimeDate.setOnClickListener {
                 findNavController().navigate(CrimeFragmentDirections.selectDate(crime.date))
+            }
+            crimeTime.setOnClickListener {
+                findNavController().navigate(CrimeFragmentDirections.selectTime(crime.date))
             }
             crimeSolved.isChecked = crime.solved
 
