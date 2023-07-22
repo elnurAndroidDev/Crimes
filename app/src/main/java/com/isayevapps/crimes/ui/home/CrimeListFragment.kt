@@ -19,6 +19,7 @@ import com.isayevapps.crimes.R
 import com.isayevapps.crimes.adapters.CrimeListAdapter
 import com.isayevapps.crimes.databinding.FragmentCrimeListBinding
 import com.isayevapps.crimes.models.Crime
+import com.isayevapps.crimes.ui.details.CrimeFragment
 import kotlinx.coroutines.launch
 
 class CrimeListFragment : Fragment() {
@@ -77,10 +78,8 @@ class CrimeListFragment : Fragment() {
 
     private fun showNewCrime() {
         viewLifecycleOwner.lifecycleScope.launch {
-            val newCrime = Crime()
-            crimeListViewModel.addCrime(newCrime)
             findNavController().navigate(
-                CrimeListFragmentDirections.showCrimeDetail(newCrime.id)
+                CrimeListFragmentDirections.showCrimeDetail(CrimeFragment.NEW_CRIME)
             )
         }
     }
@@ -88,7 +87,7 @@ class CrimeListFragment : Fragment() {
     private fun updateUI(crimes: List<Crime> = emptyList()) {
         val crimeListAdapter = CrimeListAdapter(crimes) { crimeID ->
             findNavController().navigate(
-                CrimeListFragmentDirections.showCrimeDetail(crimeID)
+                CrimeListFragmentDirections.showCrimeDetail(crimeID.toString())
             )
         }
         binding.crimesRV.adapter = crimeListAdapter

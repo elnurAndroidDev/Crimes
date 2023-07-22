@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/save_update_crime"
+        android:icon="@drawable/tick_icon"
+        android:title="@string/save_crime"
+        app:iconTint="@color/white"
+        app:showAsAction="ifRoom|withText" />
+
     <item
         android:id="@+id/delete_crime"
         android:icon="@drawable/delete_icon"
-        android:title="@string/new_crime"
+        android:title="@string/delete_crime"
         app:iconTint="@color/white"
         app:showAsAction="ifRoom|withText" />
+
 </menu>

@@ -166,12 +166,23 @@ class CrimeFragment : Fragment() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.fragment_crime_menu, menu)
+                val saveUpdateItem = menu.findItem(R.id.save_update_crime)
+                if (args.crimeID == NEW_CRIME)
+                    saveUpdateItem.setTitle(R.string.save_crime)
+                else
+                    saveUpdateItem.setTitle(R.string.update_crime)
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.delete_crime -> {
                         crimeDetailViewModel.deleteCrime()
+                        findNavController().popBackStack()
+                        true
+                    }
+
+                    R.id.save_update_crime -> {
+                        crimeDetailViewModel.saveOrUpdate()
                         findNavController().popBackStack()
                         true
                     }
@@ -288,5 +299,9 @@ class CrimeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val NEW_CRIME = "new crime"
     }
 }

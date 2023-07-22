@@ -3,15 +3,13 @@ package com.isayevapps.crimes.db
 import android.content.Context
 import androidx.room.Room
 import com.isayevapps.crimes.models.Crime
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class CrimeRepository private constructor(
-    context: Context,
-    private val coroutineScope: CoroutineScope = GlobalScope
+    context: Context
 ) {
 
     private val database: CrimeDatabase = Room.databaseBuilder(
@@ -27,13 +25,17 @@ class CrimeRepository private constructor(
     fun getCrimes(): Flow<List<Crime>> = crimeDao.getCrimes()
     suspend fun getCrime(id: UUID): Crime = crimeDao.getCrime(id)
 
-    fun updateCrime(crime: Crime) = coroutineScope.launch {
+    fun updateCrime(crime: Crime) = GlobalScope.launch {
         crimeDao.updateCrime(crime)
     }
 
-    suspend fun addCrime(crime: Crime) = crimeDao.addCrime(crime)
+    fun addCrime(crime: Crime) = GlobalScope.launch {
+        crimeDao.addCrime(crime)
+    }
 
-    suspend fun deleteCrime(crime: Crime) = crimeDao.deleteCrime(crime)
+    fun deleteCrime(crime: Crime) = GlobalScope.launch {
+        crimeDao.deleteCrime(crime)
+    }
 
 
     companion object {

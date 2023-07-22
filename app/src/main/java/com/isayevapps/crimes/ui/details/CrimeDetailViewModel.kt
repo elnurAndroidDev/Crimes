@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isayevapps.crimes.db.CrimeRepository
 import com.isayevapps.crimes.models.Crime
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,15 +11,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class CrimeDetailViewModel(crimeId: UUID) : ViewModel() {
+class CrimeDetailViewModel(private val crimeId: String) : ViewModel() {
     private val crimeRepository = CrimeRepository.get()
 
     private val _crime: MutableStateFlow<Crime?> = MutableStateFlow(null)
     val crime: StateFlow<Crime?> = _crime.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _crime.value = crimeRepository.getCrime(crimeId)
+        if (crimeId == CrimeFragment.NEW_CRIME) _crime.value = Crime()
+        else viewModelScope.launch {
+            _crime.value = crimeRepository.getCrime(UUID.fromString(crimeId))
         }
     }
 
@@ -36,10 +36,12 @@ class CrimeDetailViewModel(crimeId: UUID) : ViewModel() {
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    fun saveOrUpdate() {
         crime.value?.let {
-            crimeRepository.updateCrime(it)
+            if (crimeId == CrimeFragment.NEW_CRIME)
+                crimeRepository.addCrime(it)
+            else
+                crimeRepository.updateCrime(it)
         }
     }
 }
